@@ -100,9 +100,23 @@ if __name__ == "__main__":
     ### MonaLisa
     parser.add_argument("-npoly","-number_polygons", type=int, help='Number of polygons', required=False, default=50)
     parser.add_argument("-maxvp", "-max_vertices_polygon", type=int, help='Max vertixes per polygons', required=False, default=3)
-    parser.add_argument("-b_w", "-black_white", action='store_true', required=False, help="IInd in Black and White")
-
+    
+    
     parser.add_argument("-img", "-image_path", type=str, required=False, default="./data/", help="Where is the real image of the photo")
+
+    parser.add_argument("-swapMUT_PB", "-prob_swap_layers", type=float, help='Probability of mutate an individual by swaping two polygons', required=False, default=0.5)
+    parser.add_argument("-colorMUT_PB", "-prob_mut_color", type=float, help='Probability of mutate an individual by perturbate a color', required=False, default=0.5)
+    parser.add_argument("-alphaMUT_PB", "-alph_mut", type=float, help='Probability of mutate an individual by perturbate an alpha', required=False, default=0.5)
+    parser.add_argument("-shapeMUT_PB","-shape_perturbation_probability", type=float, help='Probability of mutate an individual by changing the whole shape (all the xy that represent the shape)', required=False, default=0.5)
+    parser.add_argument("-coordMUT_PB","-coordinate_perturbation_probability", type=float, help='Probability of mutate an individual by changing only one coordinate selected at random (only one x or y that represent a vertex)', required=False, default=0.5)
+    parser.add_argument("-vertexMUT_PB","-vertex_perturbation_probability", type=float, help='Probability of mutate an individual by changing only one vertex selected at random (only one xy that represent a vertex)', required=False, default=0.5)
+ 
+    parser.add_argument("-color", "-c",
+                            type=str,
+                            choices=['bw', 'BW', 'rgb', 'RGB'],
+                            default='BW', required=False,
+                            help='Color Representation.  B/W (1) + Alpha or R,G,B (3)+1 ')
+
     #### MOAED ####    
     parser.add_argument("-tr", "-type_reference","-reference_dir", required=False, help="Reference type for partions", 
                         default="uniform", choices=["uniform","das-dennis","energy","multi-layer","layer-energy","reduction"])
@@ -144,7 +158,7 @@ if __name__ == "__main__":
     # arguments = {'s': 64, 'pm': 0.01, 'pc': 0.9, 'POB': 8, 'GEN': 1,
     #                 'CPUS': 2, 'v': False, 'show_ind': False,
     #                 'f': None, 'algorithm': 'NSGA2'}
-    print(arguments, flush=True)
+    # print(arguments, flush=True)
 
     # show_pareto = arguments["v"] # Boolean, print pareto_front individual solution
     # show_ind = arguments["show_ind"] # Boolean, print each individual solution for generation
@@ -177,8 +191,26 @@ if __name__ == "__main__":
     # MTPB = 0.9 #Mutation probability
     MAX_VERTICES_POLYGON = arguments["maxvp"] # Max vertices per polygon
     NUMBER_POLYGONS = arguments["npoly"]  # Number of polygons
-    BOOLEAN_C_B = not(arguments["b_w"]) # Coordinates per polygon + color and alpha
+
+    COLOR_TYPE = (arguments["color"]) #  Color Representation.  B/W (1) + Alpha or R,G,B (3)+Alpha')
+    if(COLOR_TYPE.upper() == "BW"):
+        number_color_representation = 1 + 1
+    else:
+        number_color_representation = 3 + 1
     
+    arguments["number_color_representation"] = number_color_representation
+    
+    
+    # MUTATION PROBABILITIES
+    prob_swap_layers = arguments["swapMUT_PB"]
+    prob_color_mut = arguments["colorMUT_PB"]
+    prob_alpha_mut = arguments["alphaMUT_PB"]
+    
+    prob_shape_mut =  arguments["shapeMUT_PB"]
+    prob_coord_mut = arguments["coordMUT_PB"]
+    prob_vertex_mut = arguments["vertexMUT_PB"]
+    
+
 
     # NDIM = number_polygons*block_numbers  #Number of dimension of the individual (=number of gene) == 50*(6 for triangle + 2 for color and alpha)
     # print("Number of variables of the individual(==number of gene)",NDIM,flush=True)
@@ -189,12 +221,18 @@ if __name__ == "__main__":
 
     real_image_path = arguments["img"]
 
-    scenario = '-PYMOO-{}-{}-{}-{}-{}-{}-{:01.3f}-{:2.3f}-{}-{}-{}-{}'.format(
-            MAX_VERTICES_POLYGON, NUMBER_POLYGONS, BOOLEAN_C_B, SEED, NGEN, MU, CXPB, MUFLIP, cpus, algorithm_choice, type_mutation,\
-            (time.strftime("%Y-%m-%d_%H-%M-%S",  time.gmtime(start_time_stamp))))
+    
+    
+
+    scenario = f'{MAX_VERTICES_POLYGON}-{NUMBER_POLYGONS}-{number_color_representation}-{SEED}'
+    scenario += f'-{NGEN}-{MU}-{CXPB:02.3f}-{MUFLIP:02.3f}-{cpus}-{algorithm_choice}'
+    scenario += f'-{prob_swap_layers:02.3f}-{prob_color_mut:02.3f}-{prob_alpha_mut:02.3f}'
+    scenario += f'{prob_shape_mut:02.3f}-{prob_coord_mut:02.3f}-{prob_vertex_mut:02.3f}'
+    scenario += '-{}'.format(time.strftime("%Y-%m-%d_%H-%M-%S",  time.gmtime(start_time_stamp)))
 
 
-        
+    arguments['base_path'] = "./"
+    
     base_path = '.'
 
     data_path = base_path + '/data/'
@@ -203,12 +241,16 @@ if __name__ == "__main__":
     results_path = base_path + "/results/" + scenario + "/"
     images_path = results_path + "images/"
 
-    
+    arguments['results_path'] = results_path
+    arguments['images_path'] = images_path
 
     Path(results_path).mkdir(parents=True, exist_ok=True)
     Path(images_path).mkdir(parents=True, exist_ok=True)
 
     Path(data_path).mkdir(parents=True, exist_ok=True)
+
+
+    print(arguments, flush=True)
 
     # initialize the multiprocessing pool and create the runner
     with multiprocessing.Pool(cpus) as pool:
@@ -216,13 +258,11 @@ if __name__ == "__main__":
         # pool = multiprocessing.Pool(n_proccess)
         runner = StarmapParallelization(pool.starmap)
         # define the problem by passing the starmap interface of the multiprocessing pool
-        problem = MonaLisaProblem(elementwise_runner=runner,
-                                            image_real_path=real_image_path,
-                                            generation_folder_path=images_path,
-                                            number_polygons=NUMBER_POLYGONS,
-                                            max_vertices_polygon=MAX_VERTICES_POLYGON, 
-                                            c_a=BOOLEAN_C_B)
-
+        # print("BEFORE", arguments, flush=True)
+        problem = MonaLisaProblem(elementwise_runner=runner,hp=arguments)
+        # print("\nAFTER", arguments, flush=True)
+        # sys.exit(-1)
+        
         time_stamp = time.time() 
 
         output2 = FileOutput(filepath=results_path + "fitness_values.csv", show_ind=True)
@@ -230,18 +270,22 @@ if __name__ == "__main__":
         # Type of mutations
         print("Init Mutation First", flush=True)
         if(type_mutation == "MULTIFLIP"):
-            mutation = MonaLisaMutation()
+            mutation = MonaLisaMutation(prob=MUFLIP,hp=arguments)
+                                        
+            
         else: # (type_mutation == "ANOTHER"): 
             raise("Not Implemented")
         
         print("Post Mutation First", flush=True)
         
         print("Pre Crossover", flush=True)
-        crossover = OnePointCrossoverMonaLisa(prob=CXPB)
+        crossover = OnePointCrossoverMonaLisa(prob=CXPB, hp=arguments)
         print("Post Crossover", flush=True)
         
         print("Sampling", flush=True)
-        sampling = MonaLisaSampling()
+        sampling = MonaLisaSampling(hp=arguments)
+        # TODO INIT the individuals with only one figure
+
 
         print("Post Sampling", flush=True)
 
