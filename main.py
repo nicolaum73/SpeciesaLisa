@@ -89,8 +89,8 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(fromfile_prefix_chars='@')
     parser.add_argument("-s","-seed", type=int, help='Seed for random', required=True)
-    parser.add_argument("-pm", type=float, default=0.1, help='Mutation probability of changing each bit', required=False)
-    parser.add_argument("-pc", type=float, default=0.9, help='Crossover probability', required=False)
+    parser.add_argument("-pm", type=float, default=0.1, help='Mutation probability. Probability to mutate. 1 Mutate always. 0 Never change the indvs', required=False)
+    parser.add_argument("-pc", type=float, default=0.9, help='Crossover probability.Probability to crossover. 1 Exchange always. 0 Never change the indvs', required=False)
    
     parser.add_argument("-POB","-MU", "-poblacion",  "-pob", type=int, help='Number of individual for population', required=False, default=4)
     parser.add_argument("-GEN","-generacion", "-NGEN","-gen", type=int, help='Number of generations', required=False, default=5)
