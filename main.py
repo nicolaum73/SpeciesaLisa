@@ -104,13 +104,15 @@ if __name__ == "__main__":
     
     parser.add_argument("-img", "-image_path", type=str, required=False, default="./data/", help="Where is the real image of the photo")
 
-    parser.add_argument("-swapMUT_PB", "-prob_swap_layers", type=float, help='Probability of mutate an individual by swaping two polygons', required=False, default=0.5)
-    parser.add_argument("-colorMUT_PB", "-prob_mut_color", type=float, help='Probability of mutate an individual by perturbate a color', required=False, default=0.5)
-    parser.add_argument("-alphaMUT_PB", "-alph_mut", type=float, help='Probability of mutate an individual by perturbate an alpha', required=False, default=0.5)
-    parser.add_argument("-shapeMUT_PB","-shape_perturbation_probability", type=float, help='Probability of mutate an individual by changing the whole shape (all the xy that represent the shape)', required=False, default=0.5)
-    parser.add_argument("-coordMUT_PB","-coordinate_perturbation_probability", type=float, help='Probability of mutate an individual by changing only one coordinate selected at random (only one x or y that represent a vertex)', required=False, default=0.5)
-    parser.add_argument("-vertexMUT_PB","-vertex_perturbation_probability", type=float, help='Probability of mutate an individual by changing only one vertex selected at random (only one xy that represent a vertex)', required=False, default=0.5)
- 
+    parser.add_argument("-swapMUT_PB", "-prob_swap_layers", type=float, help='Probability of mutate an individual by swaping two polygons', required=False, default=0)
+    parser.add_argument("-colorMUT_PB", "-prob_mut_color", type=float, help='Probability of mutate an individual by perturbate a color', required=False, default=0)
+    parser.add_argument("-alphaMUT_PB", "-alph_mut", type=float, help='Probability of mutate an individual by perturbate an alpha', required=False, default=0)
+    parser.add_argument("-shapeMUT_PB","-shape_perturbation_probability", type=float, help='Probability of mutate an individual by changing the whole shape (all the xy that represent the shape)', required=False, default=0)
+    parser.add_argument("-coordMUT_PB","-coordinate_perturbation_probability", type=float, help='Probability of mutate an individual by changing only one coordinate selected at random (only one x or y that represent a vertex)', required=False, default=0)
+    parser.add_argument("-vertexMUT_PB","-vertex_perturbation_probability", type=float, help='Probability of mutate an individual by changing only one vertex selected at random (only one xy that represent a vertex)', required=False, default=0)
+    
+    # TODO next_version include fitness to the scale (std_desviation)
+    # parser.add_argument("-type_scale","-vertex_perturbation_probability", type=float, help='Probability of mutate an individual by changing only one vertex selected at random (only one xy that represent a vertex)', required=False, default=0.5)
     parser.add_argument("-color", "-c",
                             type=str,
                             choices=['bw', 'BW', 'rgb', 'RGB'],
