@@ -7,3 +7,6 @@ __pycache__/
 
 .code
 testing_things/
+test_images/
+results/
+data/

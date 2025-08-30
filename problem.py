@@ -1,7 +1,7 @@
 
 from pymoo.core.problem import ElementwiseProblem
 import numpy as np
-
+from PIL import Image
 
 from evaluation import *
 
@@ -12,6 +12,7 @@ from evaluation import *
 ##  PROBLEM CREATION PYMOO STYLE
 ##
 #################################################
+import os
 
 class MonaLisaProblem(ElementwiseProblem):
 
@@ -31,20 +32,28 @@ class MonaLisaProblem(ElementwiseProblem):
             
         """
 
-        max_vertices_polygon = hp["maxvp"]
-        number_polygons = hp["npoly"]
+        self.max_vertices_polygon = hp["maxvp"]
+        self.number_polygons = hp["npoly"]
        
         
         number_floats_required = hp["number_color_representation"]
-        size_block = (max_vertices_polygon*2 + number_floats_required )
-        indvidual_size = size_block* number_polygons
+        self.size_block = (self.max_vertices_polygon*2 + number_floats_required )
+        self.indvidual_size = self.size_block* self.number_polygons
         
 
-        super().__init__(n_var=indvidual_size, n_obj=1, n_ieq_constr=0)
+        super().__init__(n_var=self.indvidual_size, n_obj=1, n_ieq_constr=0)
         
         # Adding BLOCK SIZE
-        hp["size_block"] = size_block
-        hp["individual_size"] = indvidual_size
+        hp["size_block"] = self.size_block
+        hp["individual_size"] = self.indvidual_size
+
+        target_image = Image.open(hp["img"]).convert("L").convert("RGBA")
+        self.target = np.array(target_image)
+        self.t_width = target_image.width
+        self.t_height = target_image.height
+        target_image.save("./test_images/target.png")
+
+        Prediction.set_target(self.target)
 
         # self.image_real_path = image_real_path
         # self.generation_folder_path = generation_folder_path
@@ -59,23 +68,31 @@ class MonaLisaProblem(ElementwiseProblem):
         # print("Number of variables of the individual(==number of gene)",self.SIZE_VECTOR ,flush=True)
         # print("BLOCK SIZE",self.SIZE_BLOCK ,flush=True)
         
-        
-
+    def solution_to_prediction(self, x):
+        tris = []
+        float_interpolate = lambda val, d_size: int(val*(d_size-1))
+        for i in range(0, self.indvidual_size, self.size_block):
+            tone = float_interpolate(x[i + 2*self.max_vertices_polygon], 256)
+            alpha = float_interpolate(x[i + 2*self.max_vertices_polygon + 1], 256)
+            if alpha == 0: continue
+            points = []
+            for j in range(i, i + 2*self.max_vertices_polygon, 2):
+                points.append(Point(float_interpolate(x[j], self.t_width), float_interpolate(x[j+1], self.t_height)))
+            tris.append(Triangle(points, (*((tone,) * 3), alpha)))
+            
+        return Prediction(tris, (self.t_width, self.t_height))
 
     #  x, out are needed, it's basic
     #  x -> solutions, for this kind of Problem, the x is a (population, n_var) matrix. 
     #  out -> the corresponding results, including function values, constrain values and so on. 
     #        we only fill what we need. 
     def _evaluate(self, x, out, *args, **kwargs):
-        # HOW to evaluate 
-        # Coordinates  width -1, height -1 
-        # Alpha = 0 - 255
-        # Color = 0 - 255
-        out["F"] = (np.random.random()) 
-        # # out["F"] -> Fitness
-        # # out["G"] -> Constrains values
-        # out["F"] = (np.random.random(),np.random.random()) 
-        # evaluation(self.NUMBER_POLYGONS,
+        pred = self.solution_to_prediction(x)
+        pred.render()
+        fitness = pred.evaluate()
+        # print(f"Fitness: {fitness}")
+        # pred.show_error().save(f"./test_images/Error {fitness:.3f}|| {pred}.png")
+        out["F"] = fitness
         #             self.MAX_NUMBER_VERTICES,
         #             sequence_number) transformed
         # print("\tI am doing an evaluation\n",flush=True)
