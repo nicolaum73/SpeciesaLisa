@@ -110,6 +110,7 @@ if __name__ == "__main__":
     parser.add_argument("-shapeMUT_PB","-shape_perturbation_probability", type=float, help='Probability of mutate an individual by changing the whole shape (all the xy that represent the shape)', required=False, default=0)
     parser.add_argument("-coordMUT_PB","-coordinate_perturbation_probability", type=float, help='Probability of mutate an individual by changing only one coordinate selected at random (only one x or y that represent a vertex)', required=False, default=0)
     parser.add_argument("-vertexMUT_PB","-vertex_perturbation_probability", type=float, help='Probability of mutate an individual by changing only one vertex selected at random (only one xy that represent a vertex)', required=False, default=0)
+    parser.add_argument("-triangleMUT_PB","-triangle_perturbation_probability", type=float, help='Probability of mutate an individual by changing only one triangle selected at random', required=False, default=0)
     
     # TODO next_version include fitness to the scale (std_desviation)
     # parser.add_argument("-type_scale","-vertex_perturbation_probability", type=float, help='Probability of mutate an individual by changing only one vertex selected at random (only one xy that represent a vertex)', required=False, default=0.5)
@@ -211,6 +212,7 @@ if __name__ == "__main__":
     prob_shape_mut =  arguments["shapeMUT_PB"]
     prob_coord_mut = arguments["coordMUT_PB"]
     prob_vertex_mut = arguments["vertexMUT_PB"]
+    prob_triangle_mut = arguments["triangleMUT_PB"]
     
 
 
@@ -272,7 +274,8 @@ if __name__ == "__main__":
         # Type of mutations
         print("Init Mutation First", flush=True)
         if(type_mutation == "MULTIFLIP"):
-            mutation = MonaLisaMutation(prob=MUFLIP,hp=arguments)
+            # mutation = MonaLisaMutation(prob=MUFLIP,hp=arguments)
+            mutation = QuinnTest(prob=MUFLIP,hp=arguments)
                                         
             
         else: # (type_mutation == "ANOTHER"): 

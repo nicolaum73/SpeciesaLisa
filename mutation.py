@@ -1,6 +1,6 @@
 import numpy as np
 import copy
-
+import random
 
 from pymoo.core.mutation import Mutation
 
@@ -189,3 +189,60 @@ class MonaLisaMutation(Mutation):
                 mut = [c if np.random.random() > prob
                        else np.random.choice(problem.ALPHABET) for c in X[i, 0]]
                 X[i, 0] = "".join(mut)
+
+
+class QuinnTest(Mutation):
+    def __init__(self, prob=1, hp={}, **kwargs):
+
+        super().__init__(prob, **kwargs)
+
+        self.MUPB = prob
+
+        self.swapMUT_PB = hp["swapMUT_PB"]
+        self.colorMUT_PB = hp["colorMUT_PB"]
+        self.alphaMUT_PB = hp["alphaMUT_PB"]
+
+        self.shapeMUT_PB =  hp["shapeMUT_PB"]
+        self.coordMUT_PB = hp["coordMUT_PB"]
+        self.vertexMUT_PB = hp["vertexMUT_PB"]
+        self.triangleMUT_PB = hp["triangleMUT_PB"]
+
+        self.add_remove_vertex = 0
+
+        # Characteristics of the Polygons and Shapes
+        self.max_vertices_polygon = hp["maxvp"]
+        self.number_polygons = hp["npoly"]
+        self.number_floats_required = hp["number_color_representation"]
+        self.size_block = (self.max_vertices_polygon*2 + self.number_floats_required )
+        self.indvidual_size = self.size_block* self.number_polygons
+
+    def _do(self, problem, X, **kwargs):
+        Xp = np.copy(X)
+        for i,x in enumerate(Xp):
+            triangle_indices = self.triangle_locs(x)
+            if len(triangle_indices) == 0: continue
+            if self.colorMUT_PB > float(np.random.random()):
+                triangle = random.choice(triangle_indices) 
+                val = x[triangle + 6] 
+                Xp[i][triangle + 6] = np.clip(random.uniform(val - 0.1, val + 0.1), 0, 1) 
+            if self.alphaMUT_PB > float(np.random.random()):
+                triangle = random.choice(triangle_indices) 
+                val = x[triangle + 7] 
+                Xp[i][triangle + 7] = np.clip(random.uniform(val - 0.1, val + 0.1), 0, 1) 
+            if self.coordMUT_PB > float(np.random.random()):
+                pass
+            for j in range(6):
+                if self.coordMUT_PB > float(np.random.random()):
+                    triangle = random.choice(triangle_indices) 
+                    val = x[triangle + j] 
+                    Xp[i][triangle + j] = np.clip(random.uniform(val - 0.1, val + 0.1), 0, 1) 
+            if self.triangleMUT_PB > float(np.random.random()):
+                pass
+        return Xp
+    
+    def triangle_locs(self, sol: list[float]):
+        locs = []
+        for i in range(0, self.indvidual_size, self.size_block):
+            alpha = int(sol[i + 7]*255)
+            if alpha != 0: locs.append(i)
+        return locs

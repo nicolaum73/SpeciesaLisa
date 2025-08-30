@@ -66,7 +66,7 @@ class Prediction:
 
     def evaluate(self) -> float:
         score = self.alpha_differences().mean() / 255                                   # Average and Normalize to 0-1
-        if score < Prediction.BEST_SCORE: 
+        if score < 0.99*Prediction.BEST_SCORE: 
             Prediction.BEST_SCORE = score
             self.show_error().save(f"./test_images/Error {score:.3f} | Polys {len(self.tris)}.png")
         return score

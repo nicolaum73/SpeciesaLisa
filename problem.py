@@ -47,6 +47,8 @@ class MonaLisaProblem(ElementwiseProblem):
         hp["size_block"] = self.size_block
         hp["individual_size"] = self.indvidual_size
 
+        delete_test_images("./test_images/")
+
         target_image = Image.open(hp["img"]).convert("L").convert("RGBA")
         self.target = np.array(target_image)
         self.t_width = target_image.width
@@ -75,6 +77,7 @@ class MonaLisaProblem(ElementwiseProblem):
             tone = float_interpolate(x[i + 2*self.max_vertices_polygon], 256)
             alpha = float_interpolate(x[i + 2*self.max_vertices_polygon + 1], 256)
             if alpha == 0: continue
+            # alpha = 127
             points = []
             for j in range(i, i + 2*self.max_vertices_polygon, 2):
                 points.append(Point(float_interpolate(x[j], self.t_width), float_interpolate(x[j+1], self.t_height)))
@@ -99,3 +102,12 @@ class MonaLisaProblem(ElementwiseProblem):
         
         # objective1, objective2, objective3 = evaluation(x.astype(int), list_pair_od=self.list_pair_od, extremes_min_max=self.extremes_min_max)
         # out["F"] = tuple((objective1, objective2, objective3))
+
+def delete_test_images(path: str):
+    for filename in os.listdir(path):
+        file_path = os.path.join(path, filename)
+        try:
+            if os.path.isfile(file_path):
+                os.remove(file_path)  # delete the file
+        except Exception as e:
+            print(f"Could not delete {file_path}: {e}")
