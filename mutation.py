@@ -47,7 +47,7 @@ class MonaLisaMutation(Mutation):
         self.size_block = (self.max_vertices_polygon*2 + self.number_floats_required )
         self.indvidual_size = self.size_block* self.number_polygons
 
-
+    @staticmethod
     def layers_alpha_enables(individual, number_polygons)->list:
         array_polygons = np.split(individual, number_polygons)
         matrix = np.stack(array_polygons)  # Forma (5,9)
@@ -56,24 +56,27 @@ class MonaLisaMutation(Mutation):
         positions_list_layers = positions_list_list_layers[0]
         return positions_list_layers, active_layers, array_polygons
 
-
+    @staticmethod
     def swap_two_layers_up(positions_list_layers, array_polygons):
 
         if (len(positions_list_layers)>1):
             a,b = np.random.choice(positions_list_layers, 2, replace=False) # layers should be differents
-            print(f"a=",a,"b=", b, flush=True)
-            print("-----------\n")
+            # print(f"a=",a,"b=", b, flush=True)
+            # print("-----------\n")
             array_polygons[a], array_polygons[b] =  array_polygons[b], array_polygons[a]        
         
         individual = np.vstack(array_polygons)
         return individual
+    
+    
+    
     
     def _do(self, problem, X, **kwargs):
         if  self.MUPB < float(np.random.random()):
             return X
 
         elif self.prob_swap_layers < float(np.random.random()):
-            print(X.shape)
+            # print(X.shape)
 
             for ind in range(len(X)):
                 individual = X[ind]
