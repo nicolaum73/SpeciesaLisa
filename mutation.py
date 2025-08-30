@@ -68,14 +68,23 @@ class MonaLisaMutation(Mutation):
         individual = np.vstack(array_polygons)
         return individual
     
-    
+    @staticmethod
+    def choose_one_layer_from_active_layers(positions_list_layers, array_polygons)->int:
+
+        position_layer_selected = np.random.choice(positions_list_layers, 1, replace=False) # layers should be differents
+        # print(f"position_layer_selected=",position_layer_selected, flush=True)
+        # print("-----------\n")
+            
+        
+        return position_layer_selected[0]
     
     
     def _do(self, problem, X, **kwargs):
         if  self.MUPB < float(np.random.random()):
+            # print("ESTO ESTA OCURRIENDO PORQUE LA MUTACION NO DEBERIA HABER PASADO", flush=True)
             return X
 
-        elif self.prob_swap_layers < float(np.random.random()):
+        elif self.prob_swap_layers > float(np.random.random()):
             # print(X.shape)
 
             for ind in range(len(X)):
@@ -86,6 +95,7 @@ class MonaLisaMutation(Mutation):
                 # print(f"Array Poly{array_polygons}")
                 new_ind = self.swap_two_layers_up(positions_list_layers, array_polygons)
 
+
                 # print("BEFORE", individual)
                 # print("AFTER", new_ind)
 
@@ -94,22 +104,57 @@ class MonaLisaMutation(Mutation):
                 X[ind] = new_ind.flatten()
                 # print("\nAFTER",X[ind])
 
-            return X
+            # return X
 
-        elif self.prob_color_mut < float(np.random.random()):
+        elif self.prob_color_mut > float(np.random.random()):
             # TODO Change color
             pass
-        elif self.prob_alpha_mut < float(np.random.random()):
+        elif self.prob_alpha_mut > float(np.random.random()):
             # TODO Change alpha
             pass
 
-        elif self.prob_shape_mut < float(np.random.random()):
+        elif self.prob_shape_mut > float(np.random.random()):
             # TODO Change shape of a layer
             pass
 
-        elif self.prob_coord_mut < float(np.random.random()):
+        elif self.prob_coord_mut > float(np.random.random()):
+        # elif True:
             # TODO Change coord (x or y) of a layer
-            pass
+            # print("I AM USING MUT_COORD",flush=True)
+            for ind in range(len(X)):
+                
+                individual = X[ind]
+                positions_list_layers, active_layers, array_polygons = self.layers_alpha_enables(individual=individual, number_polygons=self.number_polygons)
+                # print(f"pos={positions_list_layers} and len={len(positions_list_layers)}")
+                # print(f"Active_layers={active_layers}")
+                # print(f"Array Poly{array_polygons}")
+
+                
+                position_chosen = (self.choose_one_layer_from_active_layers(positions_list_layers=positions_list_layers, array_polygons=array_polygons))
+                polygon = (array_polygons[position_chosen])
+                
+                coord_chosen = np.random.randint(0, self.max_vertices_polygon*2)
+                # print("coord_chosen", coord_chosen)
+                value_coord_chosen = polygon[coord_chosen]
+                # print("value_coord_chosen", value_coord_chosen)
+
+                new_coord_value = max(0, min(1, np.random.normal(loc=value_coord_chosen, scale=0.1,size=1)))
+
+                # print("new_coord_value", new_coord_value)
+
+                # print("......\n")
+
+
+                polygon[coord_chosen] = new_coord_value
+                array_polygons[position_chosen] = polygon
+                # new_ind = np.vstack(array_polygons)
+                # print("BEFORE", individual)
+                # print("AFTER", new_ind)
+
+                # print("BEFORE",X[ind])
+                # print("new_ind.shape", new_ind.shape)
+                # X[ind] = new_ind.flatten()
+                # print("\nAFTER",X[ind], flush=True)
 
         elif self.prob_vertex_mut < float(np.random.random()):
             # TODO Change prob_vertex
