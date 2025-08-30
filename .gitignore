@@ -9,4 +9,5 @@ __pycache__/
 testing_things/
 test_images/
 results/
-data/
+
+.vscode/

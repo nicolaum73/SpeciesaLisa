@@ -22,10 +22,11 @@ class Triangle:
 
 class Prediction:
     BEST_SCORE = 1
-    def __init__(self, tris: list[Triangle], size: tuple[int, int]):
+    def __init__(self, tris: list[Triangle], size: tuple[int, int], hp: dict):
         self.tris = tris
         self.size = size
         self.h = size[1]
+        self.images_path = hp["images_path"]
 
     @staticmethod
     def set_target(target: np.ndarray):
@@ -68,7 +69,7 @@ class Prediction:
         score = self.alpha_differences().mean() / 255                                   # Average and Normalize to 0-1
         if score < Prediction.BEST_SCORE: 
             Prediction.BEST_SCORE = score
-            self.show_error().save(f"./test_images/Error {score:.3f} | Polys {len(self.tris)}.png")
+            self.show_error().save(f"{self.images_path}/Error {score:.3f}-Polys {len(self.tris)}.png")
         return score
 
     def __str__(self): return f"Pred({' | '.join(str(t) for t in self.tris)}, Dim={self.size[0]} x {self.size[1]})"

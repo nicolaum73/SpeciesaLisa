@@ -39,7 +39,8 @@ class MonaLisaProblem(ElementwiseProblem):
         number_floats_required = hp["number_color_representation"]
         self.size_block = (self.max_vertices_polygon*2 + number_floats_required )
         self.indvidual_size = self.size_block* self.number_polygons
-        
+        self.scenario_name = hp["images_path"]
+        self.hp = hp
 
         super().__init__(n_var=self.indvidual_size, n_obj=1, n_ieq_constr=0)
         
@@ -51,7 +52,7 @@ class MonaLisaProblem(ElementwiseProblem):
         self.target = np.array(target_image)
         self.t_width = target_image.width
         self.t_height = target_image.height
-        target_image.save("./test_images/target.png")
+        target_image.save("./data/target.png")
 
         Prediction.set_target(self.target)
 
@@ -80,7 +81,7 @@ class MonaLisaProblem(ElementwiseProblem):
                 points.append(Point(float_interpolate(x[j], self.t_width), float_interpolate(x[j+1], self.t_height)))
             tris.append(Triangle(points, (*((tone,) * 3), alpha)))
             
-        return Prediction(tris, (self.t_width, self.t_height))
+        return Prediction(tris, (self.t_width, self.t_height), hp=self.hp)
 
     #  x, out are needed, it's basic
     #  x -> solutions, for this kind of Problem, the x is a (population, n_var) matrix. 
