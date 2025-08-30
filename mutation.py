@@ -237,7 +237,16 @@ class QuinnTest(Mutation):
                     val = x[triangle + j] 
                     Xp[i][triangle + j] = np.clip(random.uniform(val - 0.1, val + 0.1), 0, 1) 
             if self.triangleMUT_PB > float(np.random.random()):
-                pass
+                if 0.5 > float(np.random.random()):                     #create triangle
+                    first_free_loc = self.first_free_triangle_loc(x)
+                    if not first_free_loc: continue
+                    for j in range(8):
+                        Xp[i][first_free_loc + j] = random.uniform(0, 1)
+                else:                                                   #delete triangle
+                    triangle = random.choice(triangle_indices) 
+                    for j in range(8):
+                        Xp[i][triangle + j] = 0
+                    
         return Xp
     
     def triangle_locs(self, sol: list[float]):
@@ -246,3 +255,9 @@ class QuinnTest(Mutation):
             alpha = int(sol[i + 7]*255)
             if alpha != 0: locs.append(i)
         return locs
+    
+    def first_free_triangle_loc(self, sol: list[float]):
+        for i in range(0, self.indvidual_size, self.size_block):
+            alpha = int(sol[i + 7]*255)
+            if alpha == 0: return i
+        return None

@@ -6,7 +6,7 @@
 -CPUS=4
 -npoly=50
 -maxvp=3
--img=./data/black_and_white_tiles_small.png
+-img=./data/monalisa_small.png
 -swapMUT_PB=1
 -colorMUT_PB=0.1
 -alphaMUT_PB=0.1
