@@ -61,15 +61,15 @@ class Prediction:
         a_A = A[:,:,3] != 0                                         # alpha masks
         a_B = B[:,:,3] != 0
 
-        diff = np.where((a_A ^ a_B), 255, diff)                     # incorrect alpha 
+        # diff = np.where((a_A ^ a_B), 255, diff)                     # incorrect alpha 
         diff = np.where(~(a_A | a_B), 0, diff)                      # both transparent => no error
         return diff
 
     def evaluate(self) -> float:
         score = self.alpha_differences().mean() / 255                                   # Average and Normalize to 0-1
-        if score < Prediction.BEST_SCORE: 
+        if score < Prediction.BEST_SCORE * 0.99:                    # Save images of substanstial milestones
             Prediction.BEST_SCORE = score
-            self.show_error().save(f"{self.images_path}/Error {score:.3f}-Polys {len(self.tris)}.png")
+            self.show_error().save(f"{self.images_path}/Error {score:.9f}-Polys {len(self.tris)}.png")
         return score
 
     def __str__(self): return f"Pred({' | '.join(str(t) for t in self.tris)}, Dim={self.size[0]} x {self.size[1]})"

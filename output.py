@@ -25,10 +25,10 @@ class FileOutput(Output):
             # print(f"Filepath_Output = {self.filepath}")
     
         self.show_ind = show_ind
-        self.x_mean = Column("x_mean", width=21)
-        self.x_std = Column("x_std",  width=21)
-        self.x_min = Column("x_min", width=21)
-        self.x_max = Column("x_max", width=21)
+        self.x_mean = Column("x_mean", width=10)
+        self.x_std = Column("x_std",  width=10)
+        self.x_min = Column("x_min", width=10)
+        self.x_max = Column("x_max", width=10)
         # self.columns = [self.n_gen] #[self.n_gen, self.n_eval] # Dont care about n_eval
         
         self.columns += [self.x_mean, self.x_std, self.x_min, self.x_max]
@@ -45,10 +45,10 @@ class FileOutput(Output):
         fitness_df = pd.DataFrame(algorithm.pop.get("F")) #, columns=columns_fitness)
         
         fitness1 = fitness_df.values
-        self.x_mean.set(round(np.mean(fitness1),3))
-        self.x_min.set(round(np.min(fitness1),3))
-        self.x_max.set(round(np.max(fitness1),3))
-        self.x_std.set(round(np.std(fitness1),3))
+        self.x_mean.set(np.mean(fitness1))
+        self.x_min.set(np.min(fitness1))
+        self.x_max.set(np.max(fitness1))
+        self.x_std.set(np.std(fitness1))
         # self.x_std.set(np.std(fitness_df))
         # self.x_min.set(np.min(fitness_df))
         # self.x_max.set(np.max(fitness_df))
