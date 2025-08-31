@@ -98,7 +98,7 @@ class MonaLisaMutation(Mutation):
             # # print("ESTO ESTA OCURRIENDO PORQUE LA MUTACION NO DEBERIA HABER PASADO", flush=True)
             return X
 
-        elif self.prob_swap_layers > float(np.random.random()):
+        if self.prob_swap_layers > float(np.random.random()):
             # # print(X.shape)
 
             for ind in range(len(X)):
@@ -122,7 +122,7 @@ class MonaLisaMutation(Mutation):
 
             # return X
 
-        elif self.prob_color_mut > float(np.random.random()):
+        if self.prob_color_mut > float(np.random.random()):
             for ind in range(len(X)):
                 individual = X[ind]
                 positions_list_layers, active_layers, array_polygons = self.layers_alpha_enables(individual=individual, number_polygons=self.number_polygons)
@@ -152,7 +152,7 @@ class MonaLisaMutation(Mutation):
 
             # TODO Change color
             pass
-        elif self.prob_alpha_mut > float(np.random.random()):
+        if self.prob_alpha_mut > float(np.random.random()):
             for ind in range(len(X)):
                 individual = X[ind]
                 
@@ -193,7 +193,7 @@ class MonaLisaMutation(Mutation):
                 # print("\nAFTER",X[ind])
             pass
 
-        elif self.prob_shape_mut > float(np.random.random()):
+        if self.prob_shape_mut > float(np.random.random()):
             # TODO Change shape of a layer
             for ind in range(len(X)):
                 individual = X[ind]
@@ -224,7 +224,7 @@ class MonaLisaMutation(Mutation):
 
             pass
 
-        elif self.prob_coord_mut > float(np.random.random()):
+        if self.prob_coord_mut > float(np.random.random()):
         # elif True:
             # TODO Change coord (x or y) of a layer
             # # print("I AM USING MUT_COORD",flush=True)
@@ -256,7 +256,7 @@ class MonaLisaMutation(Mutation):
                 polygon[coord_chosen] = new_coord_value
                 array_polygons[position_chosen] = polygon
 
-        elif self.prob_vertex_mut < float(np.random.random()):
+        if self.prob_vertex_mut < float(np.random.random()):
             for ind in range(len(X)):
                 individual = X[ind]
                 positions_list_layers, active_layers, array_polygons = self.layers_alpha_enables(individual=individual, number_polygons=self.number_polygons)
@@ -295,7 +295,7 @@ class MonaLisaMutation(Mutation):
             # TODO Change prob_vertex
             pass
 
-        elif self.add_remove_vertex < float(np.random.random()):
+        if self.add_remove_vertex < float(np.random.random()):
             # TODO Add or Remove a Vertex
             pass
 
